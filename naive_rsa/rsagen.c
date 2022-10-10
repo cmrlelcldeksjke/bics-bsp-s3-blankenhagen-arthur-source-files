@@ -12,16 +12,13 @@
 
 #include <gmp.h>
 
+#include "common.h"
+
 #define E 65537
 #define REPS 50 /* for mpz_probab_prime_p */
-#define KEYDIR "keys"
-/* base of string representation of our numbers
-   16 would be better (less characters to store)
-   but it's 10 for our testing purposes */
-#define BASE 10 
 
-mpz_t p, q, n, totient;
-mpz_t e, d;
+mpz_t n, e; /* public */
+mpz_t p, q, totient, d; /* private */
 
 void
 genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
@@ -102,8 +99,8 @@ main(int argc, char *argv[])
     chdir(KEYDIR);
     export("p", p, true);
     export("q", q, true);
-    export("d", d, true);
     export("totient", totient, true);
+    export("d", d, true);
     mpz_clear(p);
     mpz_clear(q);
     mpz_clear(d);
