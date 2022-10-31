@@ -1,4 +1,4 @@
-/* rsagen uses the getrandom function from Linx
+/* rsagen uses the getrandom function from Linux
    This program may not work on other platforms */
 
 #include <err.h>
@@ -88,6 +88,11 @@ main(int argc, char *argv[])
     mp_bitcnt_t BITSIZE = 1024;
     gmp_randstate_t state;
     unsigned long seed;
+    char *keydir;
+
+    if (--argc != 1)
+        errx(1, "usage: %s <keydir>", argv[0]);
+    keydir = argv[1];
 
     gmp_randinit_default(state);
     getrandom(&seed, sizeof(seed), 0);
@@ -95,8 +100,8 @@ main(int argc, char *argv[])
 
     init_rsa(state, BITSIZE);
 
-    xmkdir(KEYDIR);
-    chdir(KEYDIR);
+    xmkdir(keydir);
+    xchdir(keydir);
     export("p", p, true);
     export("q", q, true);
     export("totient", totient, true);
