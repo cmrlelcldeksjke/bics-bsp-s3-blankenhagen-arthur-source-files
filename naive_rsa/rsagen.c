@@ -29,7 +29,7 @@ genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
 }
 
 void
-init_rsa(gmp_randstate_t state, mp_bitcnt_t bitsize)
+genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
 {
     mpz_t tmp;
 
@@ -98,7 +98,7 @@ main(int argc, char *argv[])
     getrandom(&seed, sizeof(seed), 0);
     gmp_randseed_ui(state, seed);
 
-    init_rsa(state, BITSIZE);
+    genkeys(state, BITSIZE);
 
     xmkdir(keydir);
     xchdir(keydir);
@@ -106,14 +106,11 @@ main(int argc, char *argv[])
     export("q", q, true);
     export("totient", totient, true);
     export("d", d, true);
-    mpz_clear(p);
-    mpz_clear(q);
-    mpz_clear(d);
-    mpz_clear(totient);
+    /* clear as soon as possible the private keys */
+    mpz_clears(p, q, d, totient, NULL);
     export("n", n, false);
     export("e", e, false);
-    mpz_clear(n);
-    mpz_clear(e);
+    mpz_clears(n, e, NULL);
 
     return 0;
 }
