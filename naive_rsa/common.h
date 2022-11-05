@@ -9,6 +9,7 @@
 #define WORDORDER 1
 #define ENDIANESS 1
 
+size_t mpz_nbytes(mpz_t n);
 void import(mpz_t rop, char *path);
 size_t getbufsize(mpz_t n);
 void xchdir(char *path);

@@ -6,6 +6,16 @@
 
 #include "common.h"
 
+size_t mpz_nbytes(mpz_t n)
+{
+    size_t nbits;
+    nbits = mpz_sizeinbase(n, 2);
+    if (nbits % 8 != 0)
+        return nbits/8 + 1;
+    else
+        return nbits/8;
+}
+
 void
 import(mpz_t rop, char *path)
 {
@@ -27,13 +37,7 @@ getbufsize(mpz_t n)
 {
     size_t bufsize;
 
-    /* bufsize = number of bytes in n minus one */
-    bufsize = mpz_sizeinbase(n, 2);
-    if (bufsize % 8 != 0)
-        bufsize = bufsize/8;
-    else
-        bufsize = bufsize/8 - 1;
-
+    bufsize = mpz_nbytes(n) - 1;
     /* set a limit to the bufsize, to avoid having it being too big.
        All we need is a number < n, thus one < n-1 works too */
     if (BUFSIZ < bufsize)
