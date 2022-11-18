@@ -1,6 +1,6 @@
 CC = cc
-CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations
-LDFLAGS = -lgmp
+CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -g
+LDFLAGS = -lgmp -lcrypto
 
 all: rsagen rsaencrypt rsadecrypt
 
@@ -16,4 +16,7 @@ rsadecrypt: common.c rsadecrypt.c
 %: %.c
 	${CC} ${CFLAGS} ${LDFLAGS} $< -o $@
 
-.PHONY: all
+clean:
+	rm rsagen rsaencrypt rsadecrypt
+
+.PHONY: all clean
