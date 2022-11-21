@@ -5,9 +5,8 @@
    16 would be better (less characters to store)
    but it's 10 for our testing purposes */
 #define BASE 10
-#define DELIMITER ':' /* a non-digit char to separate numbers */
 
-/* for mpz_import */
+/* for mpz_import, most significant byte first, big-endian */
 #define WORDORDER 1
 #define ENDIANESS 1
 
