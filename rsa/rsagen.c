@@ -18,7 +18,7 @@
 #define REPS 50 /* for mpz_probab_prime_p */
 
 mpz_t n, e; /* public */
-mpz_t p, q, totient, d; /* private */
+mpz_t p, q, totient, d, expo1, expo2, coeff; /* private */
 
 void
 genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
@@ -31,7 +31,7 @@ genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
 void
 genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
 {
-    mpz_t tmp;
+    mpz_t p1, q1;
 
     mpz_init(p);
     mpz_init(q);
@@ -41,19 +41,30 @@ genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
     mpz_init(n);
     mpz_mul(n, p, q);
     
-    /* totient = (p-1) * (q-1) */
+    mpz_init(p1);
+    mpz_init(q1);
+    mpz_sub_ui(p1, p, 1);
+    mpz_sub_ui(q1, q, 1);
+
     mpz_init(totient);
-    mpz_init(tmp);
-    mpz_sub_ui(totient, p, 1);
-    mpz_sub_ui(tmp, q, 1);
-    mpz_mul(totient, totient, tmp);
+    mpz_mul(totient, p1, q1);
 
     mpz_init_set_ui(e, E);
 
     mpz_init(d);
     mpz_invert(d, e, totient);
 
-    mpz_clear(tmp);
+    mpz_init(expo1);
+    mpz_mod(expo1, d, p1);
+
+    mpz_init(expo2);
+    mpz_mod(expo2, d, q1);
+
+    mpz_init(coeff);
+    mpz_invert(coeff, q, p);
+
+    mpz_clear(p1);
+    mpz_clear(q1);
 }
 
 /* only create if non-existing */
@@ -106,8 +117,11 @@ main(int argc, char *argv[])
     export("q", q, true);
     export("totient", totient, true);
     export("d", d, true);
+    export("exp1", expo1, true);
+    export("exp2", expo2, true);
+    export("coeff", coeff, true);
     /* clear as soon as possible the private keys */
-    mpz_clears(p, q, d, totient, NULL);
+    mpz_clears(p, q, d, totient, expo1, expo2, coeff, NULL);
     export("n", n, false);
     export("e", e, false);
     mpz_clears(n, e, NULL);

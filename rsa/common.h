@@ -1,10 +1,8 @@
 #include <openssl/sha.h>
 
 #define KEYDIR "keys"
-/* base of string representation of our numbers
-   16 would be better (less characters to store)
-   but it's 10 for our testing purposes */
-#define BASE 10
+/* base of string representation of our numbers */
+#define BASE 16
 
 /* for mpz_import, most significant byte first, big-endian */
 #define WORDORDER 1
