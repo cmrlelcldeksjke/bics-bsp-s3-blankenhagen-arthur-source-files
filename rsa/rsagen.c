@@ -105,14 +105,15 @@ main(int argc, char *argv[])
         errx(1, "usage: %s <keydir>", argv[0]);
     keydir = argv[1];
 
+    xmkdir(keydir);
+    xchdir(keydir);
+
     gmp_randinit_default(state);
     getrandom(&seed, sizeof(seed), 0);
     gmp_randseed_ui(state, seed);
 
     genkeys(state, BITSIZE);
 
-    xmkdir(keydir);
-    xchdir(keydir);
     export("p", p, true);
     export("q", q, true);
     export("totient", totient, true);

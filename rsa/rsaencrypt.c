@@ -25,7 +25,10 @@ oaep_pad(uchar *msg, size_t msglen, size_t k)
     dblen = k - HASHLEN - 1;
 
     if (msglen > k - 2*HASHLEN - 2)
-          errx(1, "message too long");
+    {
+          warnx("message too long");
+          return NULL;
+    }
 
     db = calloc(dblen, sizeof(uchar));
     dbmask = calloc(dblen, sizeof(uchar));
@@ -86,11 +89,19 @@ main(int argc, char *argv[])
         errx(1, "usage: %s <keydir>", argv[0]);
     keydir = argv[1];
 
-    mpz_inits(mpbuf, n, e, NULL);
-
     xchdir(keydir);
-    import(n, "n");
-    import(e, "e");
+
+    mpz_inits(mpbuf, n, e, NULL);
+    if (!import(n, "n"))
+    {
+            mpz_clears(mpbuf, n, e, NULL);
+            return 1;
+    }
+    if (!import(e, "e"))
+    {
+            mpz_clears(mpbuf, n, e, NULL);
+            return 1;
+    }
     
     k = mpz_nbytes(n);
     maxmsglen = k - 2*HASHLEN - 2;
@@ -101,9 +112,19 @@ main(int argc, char *argv[])
         /* check if the message was longer than what we read
            For that we check if there is still input */
         if (getchar() != EOF)
+        {
+            free(msg);
+            mpz_clears(mpbuf, n, e, NULL);
             errx(1, "message too long");
+        }
 
         padded = oaep_pad((uchar *) msg, msglen, k);
+        if (padded == NULL)
+        {
+            free(msg);
+            mpz_clears(mpbuf, n, e, NULL);
+            return 1;
+        }
         mpz_import(mpbuf, k, WORDORDER, sizeof(char), ENDIANESS, 0, padded);
         mpz_powm(mpbuf, mpbuf, e, n);
         mpz_out_str(stdout, BASE, mpbuf);

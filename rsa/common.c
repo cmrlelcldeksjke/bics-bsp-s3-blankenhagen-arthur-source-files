@@ -45,20 +45,26 @@ mpz_nbytes(mpz_t n)
         return nbits/8;
 }
 
-void
+int
 import(mpz_t rop, char *path)
 {
     FILE *f;
 
     f = fopen(path, "r");
     if (f == NULL)
-        err(1, "import: while opening %s", path);
+    {
+        warn("import: while opening %s", path);
+        return 0;
+    }
     if (mpz_inp_str(rop, f, BASE) == 0)
     {
         fclose(f);
-        err(1, "mpz_inp_str: while reading %s", path);
+        warn("mpz_inp_str: while reading %s", path);
+        return 0;
     }
+
     fclose(f);
+    return 1;
 }
 
 /* I2OSP converts a nonnegative integer to an octet string of a

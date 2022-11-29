@@ -77,7 +77,8 @@ oaep_unpad(size_t *msglen, uchar *padded, size_t k)
     if (onesep != 1 || y != 0 || memcmp(hash, EMPTY_STR_HASH, HASHLEN) != 0)
     {
         free(msg);
-        errx(1, "unpadding error");
+        warnx("unpadding error");
+        return NULL;
     }
 
     return msg;
@@ -100,11 +101,19 @@ main(int argc, char *argv[])
         errx(1, "usage: %s <keydir>", argv[0]);
     keydir = argv[1];
 
-    mpz_inits(mpbuf, n, d, NULL);
-
     xchdir(keydir);
-    import(n, "n");
-    import(d, "d");
+
+    mpz_inits(mpbuf, n, d, NULL);
+    if (!import(n, "n"))
+    {
+        mpz_clears(mpbuf, n, d, NULL);
+        return 1;
+    }
+    if (!import(d, "d"))
+    {
+        mpz_clears(mpbuf, n, d, NULL);
+        return 1;
+    }
     
     k = mpz_nbytes(n);
     padded = NULL;
@@ -117,11 +126,22 @@ main(int argc, char *argv[])
         /* mpz_export skips the leading 0s, so we need to add them ourselves */
         paddedlen = mpz_nbytes(mpbuf);
         if (paddedlen > k)
+        {
+            free(buf);
+            mpz_clears(mpbuf, n, d, NULL);
             errx(1, "invalid padding");
+        }
         padded = calloc(paddedlen, sizeof(char));
         mpz_export(padded+(k-paddedlen), NULL, WORDORDER, sizeof(char), ENDIANESS, 0, mpbuf);
 
         msg = oaep_unpad(&msglen, padded, k);
+        if (msg == NULL)
+        {
+            free(buf);
+            free(padded);
+            mpz_clears(mpbuf, n, d, NULL);
+            return 1;
+        }
         msg = reallocarray(msg, msglen+1, sizeof(char));
         msg[msglen] = '\0';
         printf("%s", msg);
