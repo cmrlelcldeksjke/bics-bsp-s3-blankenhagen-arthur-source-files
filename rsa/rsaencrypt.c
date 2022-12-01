@@ -127,7 +127,7 @@ main(int argc, char *argv[])
         }
         mpz_import(mpbuf, k, WORDORDER, sizeof(char), ENDIANESS, 0, padded);
         mpz_powm(mpbuf, mpbuf, e, n);
-        mpz_out_str(stdout, BASE, mpbuf);
+        mpz_out_raw(stdout, mpbuf);
 
         free(padded);
     }

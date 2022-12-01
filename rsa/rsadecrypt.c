@@ -87,10 +87,8 @@ oaep_unpad(size_t *msglen, uchar *padded, size_t k)
 int
 main(int argc, char *argv[])
 {
-    char *buf;
     uchar *padded, *msg;
-    size_t k, _bufsize, paddedlen, msglen;
-    ssize_t nread;
+    size_t k, paddedlen, msglen;
     mpz_t mpbuf;
     char *keydir;
 
@@ -118,16 +116,14 @@ main(int argc, char *argv[])
     k = mpz_nbytes(n);
     padded = NULL;
     /* _bufsize is unused and only needed by getline */
-    if ((nread = getline(&buf, &_bufsize, stdin)) > 0)
+    if (mpz_inp_raw(mpbuf, stdin) > 0)
     {
-        mpz_set_str(mpbuf, buf, BASE);
         mpz_powm(mpbuf, mpbuf, d, n);
 
         /* mpz_export skips the leading 0s, so we need to add them ourselves */
         paddedlen = mpz_nbytes(mpbuf);
         if (paddedlen > k)
         {
-            free(buf);
             mpz_clears(mpbuf, n, d, NULL);
             errx(1, "invalid padding");
         }
@@ -137,7 +133,6 @@ main(int argc, char *argv[])
         msg = oaep_unpad(&msglen, padded, k);
         if (msg == NULL)
         {
-            free(buf);
             free(padded);
             mpz_clears(mpbuf, n, d, NULL);
             return 1;
@@ -150,7 +145,6 @@ main(int argc, char *argv[])
         free(msg);
     }
 
-    free(buf);
     mpz_clears(mpbuf, n, d, NULL);
 
     return 0;
