@@ -43,3 +43,4 @@ tmp=$(mktemp opensslasn.XXXXXXXXXX)
 echo "$s" > "$tmp"
 openssl asn1parse -genconf "$tmp" -noout -out key.der
 rm "$tmp"
+openssl pkey -in key.der -inform DER -out key.pem
