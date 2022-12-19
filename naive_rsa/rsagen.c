@@ -18,7 +18,7 @@
 #define REPS 50 /* for mpz_probab_prime_p */
 
 mpz_t n, e; /* public */
-mpz_t p, q, totient, d; /* private */
+mpz_t d; /* private */
 
 void
 genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
@@ -31,6 +31,7 @@ genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
 void
 genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
 {
+    mpz_t p, q, totient;
     mpz_t tmp;
 
     mpz_init(p);
@@ -53,6 +54,7 @@ genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
     mpz_init(d);
     mpz_invert(d, e, totient);
 
+    mpz_clears(p, q, totient, NULL);
     mpz_clear(tmp);
 }
 
@@ -102,12 +104,9 @@ main(int argc, char *argv[])
 
     xmkdir(keydir);
     xchdir(keydir);
-    export("p", p, true);
-    export("q", q, true);
-    export("totient", totient, true);
     export("d", d, true);
-    /* clear as soon as possible the private keys */
-    mpz_clears(p, q, d, totient, NULL);
+    /* clear as soon as possible the private key */
+    mpz_clear(d);
     export("n", n, false);
     export("e", e, false);
     mpz_clears(n, e, NULL);
