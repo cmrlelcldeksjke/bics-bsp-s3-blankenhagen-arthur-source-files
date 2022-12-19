@@ -18,7 +18,8 @@
 #define REPS 50 /* for mpz_probab_prime_p */
 
 mpz_t n, e; /* public */
-mpz_t p, q, totient, d, expo1, expo2, coeff; /* private */
+mpz_t d; /* private */
+mpz_t p, q, expo1, expo2, coeff; /* private, for DER/PEM */
 
 void
 genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
@@ -31,7 +32,7 @@ genprime(mpz_t rop, gmp_randstate_t state, mp_bitcnt_t bitsize)
 void
 genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
 {
-    mpz_t p1, q1;
+    mpz_t totient, p1, q1;
 
     mpz_init(p);
     mpz_init(q);
@@ -63,8 +64,7 @@ genkeys(gmp_randstate_t state, mp_bitcnt_t bitsize)
     mpz_init(coeff);
     mpz_invert(coeff, q, p);
 
-    mpz_clear(p1);
-    mpz_clear(q1);
+    mpz_clears(totient, p1, q1, NULL);
 }
 
 /* only create if non-existing */
@@ -114,15 +114,14 @@ main(int argc, char *argv[])
 
     genkeys(state, BITSIZE);
 
+    export("d", d, true);
     export("p", p, true);
     export("q", q, true);
-    export("totient", totient, true);
-    export("d", d, true);
     export("exp1", expo1, true);
     export("exp2", expo2, true);
     export("coeff", coeff, true);
-    /* clear as soon as possible the private keys */
-    mpz_clears(p, q, d, totient, expo1, expo2, coeff, NULL);
+    /* clear as soon as possible the private data */
+    mpz_clears(d, p, q, expo1, expo2, coeff, NULL);
     export("n", n, false);
     export("e", e, false);
     mpz_clears(n, e, NULL);
