@@ -13,7 +13,7 @@ int
 main(int argc, char *argv[])
 {
     char *buf, *msg;
-    size_t bufsize, msgsize;
+    size_t buflen, msglen;
     ssize_t nread;
     mpz_t mpbuf;
     char *keydir;
@@ -32,16 +32,14 @@ main(int argc, char *argv[])
     import(d, "d");
     
     buf = NULL;
-    while ((nread = getdelim(&buf, &bufsize, DELIMITER, stdin)) > 0)
+    while ((nread = getdelim(&buf, &buflen, DELIMITER, stdin)) > 0)
     {
         if (buf[nread-1] == ':')
             buf[nread-1] = '\0';
         mpz_set_str(mpbuf, buf, BASE);
         mpz_powm(mpbuf, mpbuf, d, n);
-        msg = mpz_export(NULL, &msgsize, WORDORDER, sizeof(char), ENDIANESS, 0, mpbuf);
-        msg = reallocarray(msg, msgsize+1, sizeof(char));
-        msg[msgsize] = '\0';
-        printf("%s", msg);
+        msg = mpz_export(NULL, &msglen, WORDORDER, sizeof(char), ENDIANESS, 0, mpbuf);
+        fwrite(msg, sizeof(char), msglen, stdout);
         free(msg);
     }
 
