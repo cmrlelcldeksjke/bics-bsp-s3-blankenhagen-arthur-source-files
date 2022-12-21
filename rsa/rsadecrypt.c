@@ -115,7 +115,6 @@ main(int argc, char *argv[])
     
     k = mpz_nbytes(n);
     padded = NULL;
-    /* _bufsize is unused and only needed by getline */
     if (mpz_inp_raw(mpbuf, stdin) > 0)
     {
         mpz_powm(mpbuf, mpbuf, d, n);
@@ -127,8 +126,8 @@ main(int argc, char *argv[])
             mpz_clears(mpbuf, n, d, NULL);
             errx(1, "invalid padding");
         }
-        padded = calloc(paddedlen, sizeof(char));
-        mpz_export(padded+(k-paddedlen), NULL, WORDORDER, sizeof(char), ENDIANESS, 0, mpbuf);
+        padded = calloc(paddedlen, sizeof(uchar));
+        mpz_export(padded+(k-paddedlen), NULL, WORDORDER, sizeof(uchar), ENDIANESS, 0, mpbuf);
 
         msg = oaep_unpad(&msglen, padded, k);
         if (msg == NULL)
@@ -137,9 +136,7 @@ main(int argc, char *argv[])
             mpz_clears(mpbuf, n, d, NULL);
             return 1;
         }
-        msg = reallocarray(msg, msglen+1, sizeof(char));
-        msg[msglen] = '\0';
-        printf("%s", msg);
+        fwrite(msg, sizeof(uchar), msglen, stdout);
 
         free(padded);
         free(msg);

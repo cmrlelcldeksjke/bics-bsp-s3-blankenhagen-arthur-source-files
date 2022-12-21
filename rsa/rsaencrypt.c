@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/random.h>
 
 #include <gmp.h>
@@ -77,8 +76,7 @@ oaep_pad(uchar *msg, size_t msglen, size_t k)
 int
 main(int argc, char *argv[])
 {
-    char *msg;
-    uchar *padded;
+    uchar *msg, *padded;
     size_t k, msglen, maxmsglen;
     mpz_t mpbuf;
     char *keydir;
@@ -105,10 +103,10 @@ main(int argc, char *argv[])
     
     k = mpz_nbytes(n);
     maxmsglen = k - 2*HASHLEN - 2;
-    msg = calloc(maxmsglen, sizeof(char));
-    if (fgets(msg, maxmsglen, stdin) != NULL)
+    msg = calloc(maxmsglen, sizeof(uchar));
+    msglen = fread(msg, sizeof(uchar), maxmsglen, stdin);
+    if (msglen > 0)
     {
-        msglen = strlen(msg);
         /* check if the message was longer than what we read
            For that we check if there is still input */
         if (getchar() != EOF)
