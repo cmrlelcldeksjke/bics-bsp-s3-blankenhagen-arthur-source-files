@@ -96,7 +96,7 @@ export(char *path, mpz_t num, bool isprivate)
 int
 main(int argc, char *argv[])
 {
-    mp_bitcnt_t BITSIZE = 1024;
+    mp_bitcnt_t BITSIZE = 2048;
     gmp_randstate_t state;
     unsigned long seed;
     char *keydir;
